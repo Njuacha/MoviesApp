@@ -1,0 +1,17 @@
+<resources>
+    <string name="app_name">Movies</string>
+    <string name="error_message">Failed to get results. Please try again</string>
+    <string name="movie_poster">Movie Poster</string>
+    <string name="original_title_label">Original title:</string>
+    <string name="a_plot_synopsis_label">A plot synopsis</string>
+    <string name="release_date_label">Release Date:</string>
+    <string name="default_sort_order">0</string>
+    <string name="sort_order">Sort Order</string>
+    <string name="sort_order_key">sort</string>
+    <string name="most_popular_label">by most popular</string>
+    <string name="top_rated_label">by top rated</string>
+    <string name="most_popular_value">0</string>
+    <string name="top_rated_value">1</string>
+    <string name="action_settings">Settings</string>
+    <string name="user_rating">User Rating:</string>
+</resources>
