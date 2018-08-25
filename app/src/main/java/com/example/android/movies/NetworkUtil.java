@@ -10,7 +10,12 @@ import java.util.Scanner;
  * Created by hubert on 8/7/18.
  */
 
-class NetworkUtil {
+final class NetworkUtil {
+
+    private NetworkUtil(){
+
+    }
+
     public static String getMoviesFromMovieDbWebsite(URL url) throws IOException{
         HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
         try{

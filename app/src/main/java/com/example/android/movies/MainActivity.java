@@ -22,13 +22,18 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.List;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<String>, MainActivityAdapter.ImageClickListerner, SharedPreferences.OnSharedPreferenceChangeListener{
     public static final String EXTRA_MOVIE = "movie extra";
     private static final String MOVIE_URL_EXTRA = "movies url";
-    private RecyclerView mRv;
+
+    @BindView(R.id.recycler_view) RecyclerView mRv;
+    @BindView(R.id.pb)  ProgressBar mLoadingIndicator;
+    @BindView(R.id.error_tv) TextView mErrorTv;
+
     private MainActivityAdapter mAdapter;
-    private ProgressBar mLoadingIndicator;
-    private TextView mErrorTv;
     private static final int MOVIE_LOADER_ID = 24;
     private final String URL_MOST_POPULAR_MOVIES = "http://api.themoviedb.org/3/movie/popular?api_key=35562acca65b30345f1dad4fbcdae45d";
     private final String URL_TOP_RATED_MOVIES = "http://api.themoviedb.org/3/movie/top_rated?api_key=35562acca65b30345f1dad4fbcdae45d";
@@ -40,9 +45,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mRv = findViewById(R.id.recycler_view);
-        mErrorTv = findViewById(R.id.error_tv);
-        mLoadingIndicator = findViewById(R.id.pb);
+        ButterKnife.bind(this);
 
         mAdapter = new MainActivityAdapter(this, this);
 
