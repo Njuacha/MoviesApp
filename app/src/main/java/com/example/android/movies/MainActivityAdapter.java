@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
+import com.example.android.movies.model.Movie;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
@@ -42,7 +43,7 @@ public class MainActivityAdapter extends RecyclerView.Adapter<MainActivityAdapte
         Movie movie = mMovies.get(position);
         // Gets the path of the movie
 
-        String path = BASE_PATH + movie.getMovie_poster_path();
+        String path = BASE_PATH + movie.getPosterPath();
 
         // Uses the path of movie to load movie into image view
         Picasso.with(mContext).load(path).placeholder(R.mipmap.ic_launcher).into(holder.poster);

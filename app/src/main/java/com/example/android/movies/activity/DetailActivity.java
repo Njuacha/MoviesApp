@@ -1,4 +1,4 @@
-package com.example.android.movies;
+package com.example.android.movies.activity;
 
 import android.content.Intent;
 import android.support.v7.app.ActionBar;
@@ -7,9 +7,11 @@ import android.os.Bundle;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.example.android.movies.R;
+import com.example.android.movies.model.Movie;
 import com.squareup.picasso.Picasso;
 
-import static com.example.android.movies.MainActivity.EXTRA_MOVIE;
+import static com.example.android.movies.activity.MainActivity.EXTRA_MOVIE;
 import static com.example.android.movies.MainActivityAdapter.BASE_PATH;
 
 public class DetailActivity extends AppCompatActivity {
@@ -36,15 +38,15 @@ public class DetailActivity extends AppCompatActivity {
             // Get the movie object which was passed
             Movie movie = intent.getParcelableExtra(EXTRA_MOVIE);
             // Set the image to the mImageView
-            String path = BASE_PATH + movie.getMovie_poster_path();
+            String path = BASE_PATH + movie.getPosterPath();
             Picasso.with(this).load(path).into(mImageView);
             // Set the title to the textView
 
-                mTitleTv.setText(movie.getOriginal_title());
+                mTitleTv.setText(movie.getOriginalTitle());
 
-                mUserRatingTv.setText(String.valueOf(movie.getUser_rating()));
+                mUserRatingTv.setText(String.valueOf(movie.getUserRating()));
                 mReleaseDateTv.setText(movie.getReleaseDate());
-                mPlotSynopsisTv.setText(movie.getA_plot_synopsis());
+                mPlotSynopsisTv.setText(movie.getaPlotSynopsis());
 
 
         }
