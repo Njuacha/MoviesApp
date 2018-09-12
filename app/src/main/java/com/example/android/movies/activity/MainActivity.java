@@ -1,10 +1,14 @@
 package com.example.android.movies.activity;
 
 
+import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
@@ -20,6 +24,7 @@ import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.example.android.movies.MainViewModel;
 import com.example.android.movies.rest.ApiClient;
 import com.example.android.movies.rest.ApiInterface;
 import com.example.android.movies.MainActivityAdapter;
@@ -35,10 +40,11 @@ import butterknife.ButterKnife;
 import retrofit2.Call;
 import retrofit2.Response;
 
-public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<List<Movie>>,MainActivityAdapter.ImageClickListerner, SharedPreferences.OnSharedPreferenceChangeListener{
+public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<LiveData<List<Movie>>>,MainActivityAdapter.ImageClickListerner, SharedPreferences.OnSharedPreferenceChangeListener{
     public static final String EXTRA_MOVIE = "movie extra";
     private static final String SORT_ORDER = "sort order";
     private final int MOVIES_LOADER_ID = 24;
+    private MainViewModel mViewModel;
 
     @BindView(R.id.recycler_view) RecyclerView mRv;
     @BindView(R.id.pb)  ProgressBar mLoadingIndicator;
@@ -61,11 +67,14 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
         mRv.setLayoutManager(new GridLayoutManager(this, 2));
         mRv.setAdapter(mAdapter);
+        // Initialize the view model
+        mViewModel = ViewModelProviders.of(this).get(MainViewModel.class);
 
         Bundle bundle = new Bundle();
         bundle.putString(SORT_ORDER,getPreferredSortOder());
 
         getSupportLoaderManager().initLoader(MOVIES_LOADER_ID,bundle,this);
+
     }
 
 
@@ -126,9 +135,9 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     }
 
     @Override
-    public Loader<List<Movie>> onCreateLoader(int id, final Bundle args) {
+    public Loader<LiveData<List<Movie>>> onCreateLoader(int id, final Bundle args) {
 
-        return new AsyncTaskLoader<List<Movie>>(this) {
+        return new AsyncTaskLoader<LiveData<List<Movie>>>(this) {
             @Override
             protected void onStartLoading() {
                 // If no args are available which contains the sort order, then return
@@ -143,58 +152,37 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             }
 
             @Override
-            public List<Movie> loadInBackground() {
-                 /*
-            Create a connection to the API i.e create client object. And map the client object to the interface which is service object
-         */
-                ApiInterface apiService = ApiClient.getClient().create(ApiInterface.class);
-                // Perform an HTTP request using the service object just created depending on the sort choice of user
-                Call<MovieResponse> call;
-                String sortOrder = args.getString(SORT_ORDER);
-                // If there is no sort order available for whatever mysterious reason, then return null
-                if (TextUtils.isEmpty(sortOrder)||sortOrder == null){
-                    return null;
-                }
-                if( sortOrder.equals(getString(R.string.top_rated_value))){
-                    call = apiService.getTopRatedMovies(API_KEY);
-                }else if( sortOrder.equals(getString(R.string.most_popular_value))){
-                    call = apiService.getMostPopularMovies(API_KEY);
-                }else {
-                    return null;
-                }
-
-                List<Movie> movies = null;
-                try {
-                    Response<MovieResponse> response = call.execute();
-                    movies = response.body().getResults();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                return movies;
+            public LiveData<List<Movie>> loadInBackground() {
+                return mViewModel.getMovies(args.getString(SORT_ORDER));
             }
         };
     }
 
     @Override
-    public void onLoadFinished(@NonNull Loader<List<Movie>> loader, List<Movie> data) {
+    public void onLoadFinished(@NonNull Loader<LiveData<List<Movie>>> loader, LiveData<List<Movie>> data) {
         // First make the loading stop
         mLoadingIndicator.setVisibility(View.INVISIBLE);
 
-        if(data == null){
+        if(data.getValue() == null ){
             mRv.setVisibility(View.INVISIBLE);
             mErrorTv.setVisibility(View.VISIBLE);
             mErrorTv.setText(getString(R.string.error_message));
-        }else {
-            mRv.setVisibility(View.VISIBLE);
-            mErrorTv.setVisibility(View.INVISIBLE);
-            mAdapter.setListOfMovies(data);
+        }else{
+            data.observe(this, new Observer<List<Movie>>() {
+                @Override
+                public void onChanged(@Nullable List<Movie> movies) {
+                    mRv.setVisibility(View.VISIBLE);
+                    mErrorTv.setVisibility(View.INVISIBLE);
+                    mAdapter.setListOfMovies(movies);
+                }
+            });
         }
 
     }
 
 
     @Override
-    public void onLoaderReset(Loader<List<Movie>> loader) {
+    public void onLoaderReset(Loader<LiveData<List<Movie>>> loader) {
 
     }
 }
