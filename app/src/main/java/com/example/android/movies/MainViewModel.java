@@ -25,7 +25,6 @@ public class MainViewModel extends AndroidViewModel {
     private MutableLiveData<List<Movie>> movies ;
     private Context mContext;
     private String mPrefChoice = DEFAULT_VALUE;
-    private final String API_KEY ="35562acca65b30345f1dad4fbcdae45d";
 
     public MainViewModel(@NonNull Application application) {
         super(application);
@@ -51,9 +50,9 @@ public class MainViewModel extends AndroidViewModel {
             Call<MovieResponse> call;
             // If there is no pref available for whatever mysterious reason, then return null
             if( prefChoice.equals(mContext.getString(R.string.top_rated_value))){
-                call = apiService.getTopRatedMovies(API_KEY);
+                call = apiService.getTopRatedMovies();
             }else if( prefChoice.equals(mContext.getString(R.string.most_popular_value))){
-                call = apiService.getMostPopularMovies(API_KEY);
+                call = apiService.getMostPopularMovies();
             }else {
                 return null;
             }

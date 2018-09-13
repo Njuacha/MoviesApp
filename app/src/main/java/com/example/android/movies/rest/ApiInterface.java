@@ -12,11 +12,13 @@ import retrofit2.http.Query;
 
 public interface ApiInterface {
 
-    @GET("top_rated")
-    Call<MovieResponse> getTopRatedMovies(@Query("api_key") String apiKey);
+    @GET("top_rated?api_key=35562acca65b30345f1dad4fbcdae45d")
+    Call<MovieResponse> getTopRatedMovies();
 
-    @GET("popular")
-    Call<MovieResponse> getMostPopularMovies(@Query("api_key") String apiKey);
+    @GET("popular?api_key=35562acca65b30345f1dad4fbcdae45d")
+    Call<MovieResponse> getMostPopularMovies();
+
+
 
 
 }
