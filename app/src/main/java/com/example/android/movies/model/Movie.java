@@ -1,5 +1,8 @@
 package com.example.android.movies.model;
 
+import android.arch.persistence.room.ColumnInfo;
+import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.PrimaryKey;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -9,14 +12,13 @@ import com.google.gson.annotations.SerializedName;
 /**
  * Created by hubert on 8/7/18.
  */
-
 public class Movie implements Parcelable{
     @SerializedName("id")
     private final Integer id;
     @SerializedName("original_title")
     private final String originalTitle;
     @SerializedName("poster_path")
-    private final String posterPath;
+    private String posterPath;
     @SerializedName("overview")
     private final String aPlotSynopsis;
     @SerializedName("user_rating")
@@ -76,6 +78,10 @@ public class Movie implements Parcelable{
 
     public String getReleaseDate() {
         return releaseDate;
+    }
+
+    public void setPosterPath(String posterPath){
+        this.posterPath = posterPath;
     }
 
     @Override

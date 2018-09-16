@@ -16,29 +16,21 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.text.TextUtils;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.example.android.movies.MainViewModel;
-import com.example.android.movies.rest.ApiClient;
-import com.example.android.movies.rest.ApiInterface;
-import com.example.android.movies.MainActivityAdapter;
+import com.example.android.movies.viewmodel.MainViewModel;
+import com.example.android.movies.adapter.MainActivityAdapter;
 import com.example.android.movies.R;
 import com.example.android.movies.model.Movie;
-import com.example.android.movies.model.MovieResponse;
 
-import java.io.IOException;
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import retrofit2.Call;
-import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<LiveData<List<Movie>>>,MainActivityAdapter.ImageClickListerner, SharedPreferences.OnSharedPreferenceChangeListener{
     public static final String EXTRA_MOVIE = "movie extra";
@@ -52,7 +44,6 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
     private MainActivityAdapter mAdapter;
 
-    private final String API_KEY ="35562acca65b30345f1dad4fbcdae45d";
 
 
 
@@ -108,7 +99,8 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
     @Override
     public void onImagedClicked(Movie movie) {
-        startActivity(new Intent(MainActivity.this,DetailActivity.class).putExtra(EXTRA_MOVIE,movie));
+        if(movie != null) startActivity(new Intent(MainActivity.this
+                ,DetailActivity.class).putExtra(EXTRA_MOVIE,movie));
     }
 
 

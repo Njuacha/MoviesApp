@@ -1,4 +1,4 @@
-package com.example.android.movies;
+package com.example.android.movies.adapter;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
+import com.example.android.movies.R;
 import com.example.android.movies.model.Movie;
 import com.squareup.picasso.Picasso;
 

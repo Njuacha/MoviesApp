@@ -1,4 +1,4 @@
-package com.example.android.movies;
+package com.example.android.movies.viewmodel;
 
 import android.app.Application;
 import android.arch.lifecycle.AndroidViewModel;
@@ -8,6 +8,7 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
+import com.example.android.movies.R;
 import com.example.android.movies.model.Movie;
 import com.example.android.movies.model.MovieResponse;
 import com.example.android.movies.rest.ApiClient;
