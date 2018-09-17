@@ -68,10 +68,7 @@ public class MainViewModel extends AndroidViewModel {
              Else we are not loading for the first time
              nor has pref choice changed so we return already cached movies
             */
-        }else {
-            return movies;
         }
-
 
         return movies;
     }

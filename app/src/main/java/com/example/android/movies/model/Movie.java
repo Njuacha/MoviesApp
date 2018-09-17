@@ -12,9 +12,11 @@ import com.google.gson.annotations.SerializedName;
 /**
  * Created by hubert on 8/7/18.
  */
+@Entity
 public class Movie implements Parcelable{
+    @PrimaryKey
     @SerializedName("id")
-    private final Integer id;
+    private final int id;
     @SerializedName("original_title")
     private final String originalTitle;
     @SerializedName("poster_path")
@@ -68,7 +70,7 @@ public class Movie implements Parcelable{
         return posterPath;
     }
 
-    public String getaPlotSynopsis() {
+    public String getAPlotSynopsis() {
         return aPlotSynopsis;
     }
 

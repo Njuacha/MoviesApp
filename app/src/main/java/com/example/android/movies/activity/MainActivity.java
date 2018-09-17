@@ -16,6 +16,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -154,7 +155,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     public void onLoadFinished(@NonNull Loader<LiveData<List<Movie>>> loader, LiveData<List<Movie>> data) {
         // First make the loading stop
         mLoadingIndicator.setVisibility(View.INVISIBLE);
-
+        Log.d("Jesus",data== null?"Yez":"no");
         if(data.getValue() == null ){
             mRv.setVisibility(View.INVISIBLE);
             mErrorTv.setVisibility(View.VISIBLE);

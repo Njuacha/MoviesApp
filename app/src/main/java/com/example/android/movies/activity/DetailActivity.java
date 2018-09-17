@@ -3,6 +3,8 @@ package com.example.android.movies.activity;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBar;
@@ -11,9 +13,12 @@ import android.os.Bundle;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.example.android.movies.AppExecutors;
+import com.example.android.movies.Database.AppDatabase;
 import com.example.android.movies.R;
 import com.example.android.movies.adapter.ReviewsAdapter;
 import com.example.android.movies.adapter.TrailersAdapter;
@@ -23,6 +28,9 @@ import com.example.android.movies.model.Video;
 import com.example.android.movies.viewmodel.DetailActivityViewModel;
 import com.squareup.picasso.Picasso;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.List;
 
 import butterknife.BindView;
@@ -44,6 +52,8 @@ public class DetailActivity extends AppCompatActivity implements TrailersAdapter
 
     TrailersAdapter mTrailersAdapter;
     ReviewsAdapter mReviewsAdapter;
+    Movie mMovie;
+    AppDatabase mDb;
 
 
     @Override
@@ -61,21 +71,23 @@ public class DetailActivity extends AppCompatActivity implements TrailersAdapter
         Intent intent = getIntent();
         if (intent != null && intent.hasExtra(EXTRA_MOVIE)) {
             // Get the movie object which was passed
-            Movie movie = intent.getParcelableExtra(EXTRA_MOVIE);
+            mMovie = intent.getParcelableExtra(EXTRA_MOVIE);
             // Set the image to the mImageView
-            String path = BASE_PATH + movie.getPosterPath();
+            String path = BASE_PATH + mMovie.getPosterPath();
 
             Picasso.with(this).load(path).into(mImageView);
             // Set the title to the textView
-            mTitleTv.setText(movie.getOriginalTitle());
+            mTitleTv.setText(mMovie.getOriginalTitle());
 
-            mUserRatingTv.setText(String.valueOf(movie.getUserRating()));
-            mReleaseDateTv.setText(movie.getReleaseDate());
-            mPlotSynopsisTv.setText(movie.getaPlotSynopsis());
+            mUserRatingTv.setText(String.valueOf(mMovie.getUserRating()));
+            mReleaseDateTv.setText(mMovie.getReleaseDate());
+            mPlotSynopsisTv.setText(mMovie.getAPlotSynopsis());
 
             // Instantiate trailer and reviews adapters
             mTrailersAdapter = new TrailersAdapter(this, this);
             mReviewsAdapter = new ReviewsAdapter(this);
+
+            mDb = AppDatabase.getDatabaseInstance(this);
 
             // Set dividers for recycler views
             mRvTrailers.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
@@ -85,7 +97,7 @@ public class DetailActivity extends AppCompatActivity implements TrailersAdapter
             mRvTrailers.setAdapter(mTrailersAdapter);
             mRvReviews.setAdapter(mReviewsAdapter);
 
-            setUpViewModel(movie.getId());
+            setUpViewModel(mMovie.getId());
 
 
         }
@@ -118,5 +130,50 @@ public class DetailActivity extends AppCompatActivity implements TrailersAdapter
 
         Intent intent = new Intent(Intent.ACTION_VIEW,youTubeUri);
         startActivity(intent);
+    }
+
+
+    public void onFavoriteButtonClicked(View view) {
+        String uri = saveImageInFile(mMovie.getOriginalTitle());
+        Movie movie = createANewMovieObject(uri);
+        insertMovieInDatabase(movie);
+    }
+
+    private void insertMovieInDatabase(final Movie movie) {
+        AppExecutors.getsInstance().diskIO().execute(new Runnable() {
+            @Override
+            public void run() {
+                mDb.movieDoa().insertMovie(movie);
+            }
+        });
+    }
+
+    private Movie createANewMovieObject(String uri) {
+        // Take the existing movie object and modify the path to the uri of image file
+        Movie movie = mMovie;
+        movie.setPosterPath(uri);
+        return movie;
+    }
+
+    private String saveImageInFile(String originalTitle) {
+        // Get Bitmap from image
+        Bitmap bitmap = ((BitmapDrawable) mImageView.getDrawable()).getBitmap();
+        // Declare File out put stream to be used to write to a file
+        FileOutputStream fileOutputStream = null;
+        File directory = getApplicationContext().getFilesDir();
+        File file = new File(directory,originalTitle);
+
+        try {
+
+            fileOutputStream = openFileOutput(file.getName(), MODE_PRIVATE);
+            bitmap.compress(Bitmap.CompressFormat.PNG,100,fileOutputStream);
+            fileOutputStream.flush();
+            fileOutputStream.close();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return String.valueOf(Uri.fromFile(file));
     }
 }
