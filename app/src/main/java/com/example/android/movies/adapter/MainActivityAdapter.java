@@ -25,6 +25,7 @@ public class MainActivityAdapter extends RecyclerView.Adapter<MainActivityAdapte
     private final ImageClickListerner mImageClickListerner;
     //final String  BASE_PATH = "http://image.tmdb.org/t/p/w185/";
     public final static String  BASE_PATH = "http://image.tmdb.org/t/p/original";
+    public boolean favorite ;
 
     public MainActivityAdapter(Context context, ImageClickListerner mImageClickListerner){
         mContext = context;
@@ -42,10 +43,10 @@ public class MainActivityAdapter extends RecyclerView.Adapter<MainActivityAdapte
     public void onBindViewHolder(@NonNull PosterViewHolder holder, int position) {
         // Gets the movie from the list of movies
         Movie movie = mMovies.get(position);
+        // If it is not a favorite movie then we need to append the Base network url to path
+        if(!favorite) movie.setPosterPath(BASE_PATH.concat(movie.getPosterPath()));
         // Gets the path of the movie
-
-        String path = BASE_PATH + movie.getPosterPath();
-
+        String path = movie.getPosterPath();
         // Uses the path of movie to load movie into image view
         Picasso.with(mContext).load(path).placeholder(R.mipmap.ic_launcher).into(holder.poster);
     }
@@ -66,6 +67,10 @@ public class MainActivityAdapter extends RecyclerView.Adapter<MainActivityAdapte
             return mMovies.size();
     }
 
+    public void setFavorite(boolean favorite) {
+        this.favorite = favorite;
+    }
+
     public class PosterViewHolder extends RecyclerView.ViewHolder{
 
         final ImageView poster;
@@ -82,4 +87,5 @@ public class MainActivityAdapter extends RecyclerView.Adapter<MainActivityAdapte
         }
 
     }
+
 }

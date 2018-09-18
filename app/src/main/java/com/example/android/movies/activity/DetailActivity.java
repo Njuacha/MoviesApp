@@ -73,7 +73,7 @@ public class DetailActivity extends AppCompatActivity implements TrailersAdapter
             // Get the movie object which was passed
             mMovie = intent.getParcelableExtra(EXTRA_MOVIE);
             // Set the image to the mImageView
-            String path = BASE_PATH + mMovie.getPosterPath();
+            String path = mMovie.getPosterPath();
 
             Picasso.with(this).load(path).into(mImageView);
             // Set the title to the textView

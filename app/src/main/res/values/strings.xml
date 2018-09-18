@@ -16,4 +16,6 @@
     <string name="favorite_value">2</string>
     <string name="action_settings">Settings</string>
     <string name="userRating">User Rating:</string>
+    <string name="trailers">Trailers</string>
+    <string name="reviews">Reviews</string>
 </resources>

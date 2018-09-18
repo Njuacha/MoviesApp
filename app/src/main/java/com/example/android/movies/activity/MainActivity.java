@@ -146,7 +146,10 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
             @Override
             public LiveData<List<Movie>> loadInBackground() {
-                return mViewModel.getMovies(args.getString(SORT_ORDER));
+                LiveData<List<Movie>> liveMovies = mViewModel.getMovies(args.getString(SORT_ORDER));
+                // Determine from the view model if it is a favorite movie and inform adapter
+                mAdapter.setFavorite(mViewModel.isFavorite());
+                return liveMovies;
             }
         };
     }
@@ -155,21 +158,20 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     public void onLoadFinished(@NonNull Loader<LiveData<List<Movie>>> loader, LiveData<List<Movie>> data) {
         // First make the loading stop
         mLoadingIndicator.setVisibility(View.INVISIBLE);
-        Log.d("Jesus",data== null?"Yez":"no");
+        data.observe(this, new Observer<List<Movie>>() {
+            @Override
+            public void onChanged(@Nullable List<Movie> movies) {
+                mRv.setVisibility(View.VISIBLE);
+                mErrorTv.setVisibility(View.INVISIBLE);
+                mAdapter.setListOfMovies(movies);
+            }
+        });
         if(data.getValue() == null ){
             mRv.setVisibility(View.INVISIBLE);
             mErrorTv.setVisibility(View.VISIBLE);
             mErrorTv.setText(getString(R.string.error_message));
-        }else{
-            data.observe(this, new Observer<List<Movie>>() {
-                @Override
-                public void onChanged(@Nullable List<Movie> movies) {
-                    mRv.setVisibility(View.VISIBLE);
-                    mErrorTv.setVisibility(View.INVISIBLE);
-                    mAdapter.setListOfMovies(movies);
-                }
-            });
         }
+
 
     }
 
