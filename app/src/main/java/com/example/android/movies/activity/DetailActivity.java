@@ -24,6 +24,8 @@ import com.example.android.movies.adapter.ReviewsAdapter;
 import com.example.android.movies.adapter.TrailersAdapter;
 import com.example.android.movies.model.Movie;
 import com.example.android.movies.model.Review;
+import com.example.android.movies.model.ReviewWithId;
+import com.example.android.movies.model.TrailerVideoWithId;
 import com.example.android.movies.model.Video;
 import com.example.android.movies.viewmodel.DetailActivityViewModel;
 import com.squareup.picasso.Picasso;
@@ -31,29 +33,38 @@ import com.squareup.picasso.Picasso;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
+import static com.example.android.movies.activity.MainActivity.EXTRA_FAVORITE;
 import static com.example.android.movies.activity.MainActivity.EXTRA_MOVIE;
-import static com.example.android.movies.adapter.MainActivityAdapter.BASE_PATH;
 
 public class DetailActivity extends AppCompatActivity implements TrailersAdapter.TrailerClickListener {
 
     // Declare and instantiate views
-    @BindView((R.id.iv_poster)) ImageView mImageView;
-    @BindView(R.id.tv_user_rating) TextView mUserRatingTv;
-    @BindView(R.id.tv_release_date) TextView mReleaseDateTv;
-    @BindView(R.id.tv_plot_synopsis) TextView mPlotSynopsisTv;
-    @BindView(R.id.tv_title) TextView mTitleTv;
-    @BindView(R.id.rv_trailers) RecyclerView mRvTrailers;
-    @BindView(R.id.rv_reviews) RecyclerView mRvReviews;
+    @BindView((R.id.iv_poster))
+    ImageView mImageView;
+    @BindView(R.id.tv_user_rating)
+    TextView mUserRatingTv;
+    @BindView(R.id.tv_release_date)
+    TextView mReleaseDateTv;
+    @BindView(R.id.tv_plot_synopsis)
+    TextView mPlotSynopsisTv;
+    @BindView(R.id.tv_title)
+    TextView mTitleTv;
+    @BindView(R.id.rv_trailers)
+    RecyclerView mRvTrailers;
+    @BindView(R.id.rv_reviews)
+    RecyclerView mRvReviews;
 
-    TrailersAdapter mTrailersAdapter;
-    ReviewsAdapter mReviewsAdapter;
-    Movie mMovie;
-    AppDatabase mDb;
+    private TrailersAdapter mTrailersAdapter;
+    private ReviewsAdapter mReviewsAdapter;
+    private Movie mMovie;
+    private AppDatabase mDb;
+    private boolean mFavorite = false;
 
 
     @Override
@@ -104,8 +115,8 @@ public class DetailActivity extends AppCompatActivity implements TrailersAdapter
     }
 
     private void setUpViewModel(int id) {
-        DetailActivityViewModel viewModel = ViewModelProviders.of(this).get(DetailActivityViewModel.class);
-
+        final DetailActivityViewModel viewModel = ViewModelProviders.of(this).get(DetailActivityViewModel.class);
+        viewModel.setFavorite(ismFavorite());
         // Set up the trailers
         viewModel.getTrailers(id).observe(this, new Observer<List<Video>>() {
             @Override
@@ -126,26 +137,67 @@ public class DetailActivity extends AppCompatActivity implements TrailersAdapter
     @Override
     public void onTrailerClicked(String videoKey) {
         String baseUrl = "https://www.youtube.com/watch?v=";
-        Uri youTubeUri = Uri.parse(baseUrl+videoKey);
+        Uri youTubeUri = Uri.parse(baseUrl + videoKey);
 
-        Intent intent = new Intent(Intent.ACTION_VIEW,youTubeUri);
+        Intent intent = new Intent(Intent.ACTION_VIEW, youTubeUri);
         startActivity(intent);
     }
-
 
     public void onFavoriteButtonClicked(View view) {
         String uri = saveImageInFile(mMovie.getOriginalTitle());
         Movie movie = createANewMovieObject(uri);
-        insertMovieInDatabase(movie);
+
+        saveInDatabase(movie);
     }
 
-    private void insertMovieInDatabase(final Movie movie) {
+    private void saveInDatabase(final Movie movie) {
         AppExecutors.getsInstance().diskIO().execute(new Runnable() {
             @Override
             public void run() {
-                mDb.movieDoa().insertMovie(movie);
+                insertMovieInDatabase(movie);
+                insertTrailersInDatabase(movie.getId());
+                insertReviewsInDatabase(movie.getId());
             }
         });
+
+    }
+
+    private void insertReviewsInDatabase(int id) {
+        List<ReviewWithId> reviewsWithVideoId = constructListOfReviewWithVideoId(id);
+        if (reviewsWithVideoId.size() != 0) {
+            mDb.reviewDao().insertReviews(reviewsWithVideoId);
+        }
+    }
+
+    private void insertTrailersInDatabase(int id) {
+        List<TrailerVideoWithId> trailerVideosWithId = constructListOfTrailerVideoWithId(id);
+        if (trailerVideosWithId.size() != 0) {
+            mDb.trailerDoa().insertTrailers(trailerVideosWithId);
+        }
+    }
+
+    private List<ReviewWithId> constructListOfReviewWithVideoId(int id) {
+        List<ReviewWithId> reviewsWithId = new ArrayList<>();
+
+        for (Review review : mReviewsAdapter.getReviews()) {
+            reviewsWithId.add(new ReviewWithId(id, review));
+        }
+
+        return reviewsWithId;
+    }
+
+    private List<TrailerVideoWithId> constructListOfTrailerVideoWithId(int id) {
+        List<TrailerVideoWithId> trailerVideosWithId = new ArrayList<>();
+
+        for (Video video : mTrailersAdapter.getVideos()) {
+            trailerVideosWithId.add(new TrailerVideoWithId(id, video));
+        }
+
+        return trailerVideosWithId;
+    }
+
+    private void insertMovieInDatabase(Movie movie) {
+        mDb.movieDoa().insertMovie(movie);
     }
 
     private Movie createANewMovieObject(String uri) {
@@ -161,12 +213,12 @@ public class DetailActivity extends AppCompatActivity implements TrailersAdapter
         // Declare File out put stream to be used to write to a file
         FileOutputStream fileOutputStream = null;
         File directory = getApplicationContext().getFilesDir();
-        File file = new File(directory,originalTitle);
+        File file = new File(directory, originalTitle);
 
         try {
 
             fileOutputStream = openFileOutput(file.getName(), MODE_PRIVATE);
-            bitmap.compress(Bitmap.CompressFormat.PNG,100,fileOutputStream);
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, fileOutputStream);
             fileOutputStream.flush();
             fileOutputStream.close();
 
@@ -175,5 +227,10 @@ public class DetailActivity extends AppCompatActivity implements TrailersAdapter
         }
 
         return String.valueOf(Uri.fromFile(file));
+    }
+
+    private boolean ismFavorite() {
+        mFavorite = getIntent().getBooleanExtra(EXTRA_FAVORITE, false);
+        return mFavorite;
     }
 }

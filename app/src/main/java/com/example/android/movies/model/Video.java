@@ -10,6 +10,11 @@ public class Video {
     @SerializedName("type")
     private String type;
 
+    public Video(String name, String key, String type) {
+        this.name = name;
+        this.key = key;
+        this.type = type;
+    }
 
     public String getName() {
         return name;

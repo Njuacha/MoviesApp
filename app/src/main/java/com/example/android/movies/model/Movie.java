@@ -5,6 +5,7 @@ import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.PrimaryKey;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.NonNull;
 
 import com.google.gson.annotations.SerializedName;
 
@@ -14,6 +15,7 @@ import com.google.gson.annotations.SerializedName;
  */
 @Entity
 public class Movie implements Parcelable{
+    @NonNull
     @PrimaryKey
     @SerializedName("id")
     private final int id;

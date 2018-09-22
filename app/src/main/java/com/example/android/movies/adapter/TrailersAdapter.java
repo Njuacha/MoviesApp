@@ -3,6 +3,7 @@ package com.example.android.movies.adapter;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -42,12 +43,18 @@ public class TrailersAdapter extends RecyclerView.Adapter<TrailersAdapter.Traile
         if ( videos == null){
             return 0;
         }
-        else return videos.size() ;
+        else {
+            return videos.size();
+        }
     }
 
     public void setVideos(List<Video> videos) {
         this.videos = videos;
         notifyDataSetChanged();
+    }
+
+    public List<Video> getVideos() {
+        return videos;
     }
 
     public interface TrailerClickListener{

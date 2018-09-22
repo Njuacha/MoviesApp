@@ -6,8 +6,10 @@ import android.arch.persistence.room.RoomDatabase;
 import android.content.Context;
 
 import com.example.android.movies.model.Movie;
+import com.example.android.movies.model.ReviewWithId;
+import com.example.android.movies.model.TrailerVideoWithId;
 
-@Database(entities = Movie.class, version = 1, exportSchema = false)
+@Database(entities = {Movie.class, TrailerVideoWithId.class, ReviewWithId.class}, version = 1, exportSchema = false)
 public abstract class AppDatabase extends RoomDatabase{
 
     private static final String DATABASE_NAME = "MoviesApp";
@@ -26,6 +28,8 @@ public abstract class AppDatabase extends RoomDatabase{
         return databaseInstance;
     }
 
-    public abstract MovieDoa movieDoa();
+    public abstract MovieDao movieDoa();
+    public abstract TrailerDao trailerDoa();
+    public abstract ReviewDao reviewDao();
 
 }

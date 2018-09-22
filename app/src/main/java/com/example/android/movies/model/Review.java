@@ -1,13 +1,19 @@
 package com.example.android.movies.model;
 
+import android.support.annotation.NonNull;
+
 import com.google.gson.annotations.SerializedName;
 
 public class Review {
-
     @SerializedName("author")
     private String author;
     @SerializedName("content")
     private String review;
+
+    public Review(String author, String review) {
+        this.author = author;
+        this.review = review;
+    }
 
     public String getAuthor() {
         return author;

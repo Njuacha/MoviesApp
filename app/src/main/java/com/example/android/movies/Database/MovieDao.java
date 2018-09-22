@@ -11,7 +11,7 @@ import com.example.android.movies.model.Movie;
 import java.util.List;
 
 @Dao
-public interface MovieDoa {
+public interface MovieDao {
     @Insert
     void insertMovie(Movie movie);
 

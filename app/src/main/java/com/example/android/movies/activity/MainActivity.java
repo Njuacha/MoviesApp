@@ -36,8 +36,10 @@ import butterknife.ButterKnife;
 public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<LiveData<List<Movie>>>,MainActivityAdapter.ImageClickListerner, SharedPreferences.OnSharedPreferenceChangeListener{
     public static final String EXTRA_MOVIE = "movie extra";
     private static final String SORT_ORDER = "sort order";
+    public static final String EXTRA_FAVORITE = "extra favorite state";
     private final int MOVIES_LOADER_ID = 24;
     private MainViewModel mViewModel;
+
 
     @BindView(R.id.recycler_view) RecyclerView mRv;
     @BindView(R.id.pb)  ProgressBar mLoadingIndicator;
@@ -45,9 +47,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
     private MainActivityAdapter mAdapter;
 
-
-
-
+    
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -100,8 +100,12 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
     @Override
     public void onImagedClicked(Movie movie) {
-        if(movie != null) startActivity(new Intent(MainActivity.this
-                ,DetailActivity.class).putExtra(EXTRA_MOVIE,movie));
+        if(movie != null) {
+            Intent intent = new Intent(MainActivity.this,DetailActivity.class);
+            intent.putExtra(EXTRA_MOVIE,movie);
+            intent.putExtra(EXTRA_FAVORITE,mViewModel.isFavorite());
+            startActivity(intent);
+        }
     }
 
 

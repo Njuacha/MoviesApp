@@ -38,6 +38,10 @@ public class ReviewsAdapter extends RecyclerView.Adapter<ReviewsAdapter.ReviewVi
         notifyDataSetChanged();
     }
 
+    public List<Review> getReviews() {
+        return reviews;
+    }
+
     @Override
     public int getItemCount() {
         if(reviews == null){
