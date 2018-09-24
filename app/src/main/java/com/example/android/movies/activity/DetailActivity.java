@@ -95,10 +95,7 @@ public class DetailActivity extends AppCompatActivity implements TrailersAdapter
             // Set the title to the textView
             mTitleTv.setText(mMovie.getOriginalTitle());
 
-            // Todo: Resolve issue with float value
-            float value = mMovie.getUserRating();
-            //mRatingBar.setRating(value);
-            Log.d("rating",""+value);
+            mRatingBar.setRating(mMovie.getUserRating()/(float)2);
             mReleaseDateTv.setText(mMovie.getReleaseDate());
             mPlotSynopsisTv.setText(mMovie.getAPlotSynopsis());
 

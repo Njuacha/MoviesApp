@@ -7,6 +7,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 
@@ -29,7 +30,7 @@ public class TrailersAdapter extends RecyclerView.Adapter<TrailersAdapter.Traile
     @NonNull
     @Override
     public TrailerViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(context).inflate(R.layout.movie,parent,false);
+        View view = LayoutInflater.from(context).inflate(R.layout.trailer,parent,false);
         return new TrailerViewHolder(view);
     }
 
@@ -63,21 +64,25 @@ public class TrailersAdapter extends RecyclerView.Adapter<TrailersAdapter.Traile
 
 
 
-    public class TrailerViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
+    public class TrailerViewHolder extends RecyclerView.ViewHolder {
 
         TextView textView;
+        ImageButton button;
 
         public TrailerViewHolder(View itemView) {
             super(itemView);
 
             textView = itemView.findViewById(R.id.textView);
-            itemView.setOnClickListener(this);
+            button = itemView.findViewById(R.id.play);
+
+            button.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    listener.onTrailerClicked(videos.get(getAdapterPosition()).getKey());
+                }
+            });
         }
 
-        @Override
-        public void onClick(View v) {
-            listener.onTrailerClicked(videos.get(getAdapterPosition()).getKey());
-        }
     }
 }
 
