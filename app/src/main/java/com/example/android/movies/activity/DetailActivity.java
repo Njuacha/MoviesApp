@@ -17,6 +17,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.RatingBar;
 import android.widget.TextView;
 
 import com.example.android.movies.AppExecutors;
@@ -49,8 +50,6 @@ public class DetailActivity extends AppCompatActivity implements TrailersAdapter
     // Declare and instantiate views
     @BindView((R.id.iv_poster))
     ImageView mImageView;
-    @BindView(R.id.tv_user_rating)
-    TextView mUserRatingTv;
     @BindView(R.id.tv_release_date)
     TextView mReleaseDateTv;
     @BindView(R.id.tv_plot_synopsis)
@@ -63,6 +62,8 @@ public class DetailActivity extends AppCompatActivity implements TrailersAdapter
     RecyclerView mRvReviews;
     @BindView(R.id.btn_favorite)
     Button mFavoriteBtn;
+    @BindView(R.id.rating_bar)
+    RatingBar mRatingBar;
 
     private TrailersAdapter mTrailersAdapter;
     private ReviewsAdapter mReviewsAdapter;
@@ -94,7 +95,10 @@ public class DetailActivity extends AppCompatActivity implements TrailersAdapter
             // Set the title to the textView
             mTitleTv.setText(mMovie.getOriginalTitle());
 
-            mUserRatingTv.setText(String.valueOf(mMovie.getUserRating())); // Todo: Resolve issue with float value
+            // Todo: Resolve issue with float value
+            float value = mMovie.getUserRating();
+            //mRatingBar.setRating(value);
+            Log.d("rating",""+value);
             mReleaseDateTv.setText(mMovie.getReleaseDate());
             mPlotSynopsisTv.setText(mMovie.getAPlotSynopsis());
 
