@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -14,6 +15,7 @@ import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -59,6 +61,8 @@ public class DetailActivity extends AppCompatActivity implements TrailersAdapter
     RecyclerView mRvTrailers;
     @BindView(R.id.rv_reviews)
     RecyclerView mRvReviews;
+    @BindView(R.id.btn_favorite)
+    Button mFavoriteBtn;
 
     private TrailersAdapter mTrailersAdapter;
     private ReviewsAdapter mReviewsAdapter;
@@ -90,7 +94,7 @@ public class DetailActivity extends AppCompatActivity implements TrailersAdapter
             // Set the title to the textView
             mTitleTv.setText(mMovie.getOriginalTitle());
 
-            mUserRatingTv.setText(String.valueOf(mMovie.getUserRating()));
+            mUserRatingTv.setText(String.valueOf(mMovie.getUserRating())); // Todo: Resolve issue with float value
             mReleaseDateTv.setText(mMovie.getReleaseDate());
             mPlotSynopsisTv.setText(mMovie.getAPlotSynopsis());
 
@@ -108,15 +112,51 @@ public class DetailActivity extends AppCompatActivity implements TrailersAdapter
             mRvTrailers.setAdapter(mTrailersAdapter);
             mRvReviews.setAdapter(mReviewsAdapter);
 
-            setUpViewModel(mMovie.getId());
-
+            setUpData();
 
         }
     }
 
+    private void  setUpData() {
+
+        new AsyncTask<Void,Void, Boolean>(){
+
+            @Override
+            protected Boolean doInBackground(Void... voids) {
+                // Get the boolean value from main activity that depicts
+                // if the sort order is now favorite movies or not in main activity
+                boolean favorite = getIntent().getBooleanExtra(EXTRA_FAVORITE, false);
+                if(favorite){
+                    // Because the sort order is favorite movies we can assume that this is a favorite movie
+                    return true;
+                }
+                else{
+                    // if the sort order is not favorite movies we have to check if the movie is a favorite
+                    // By verifying it there is a movie like this in the favorite list in database
+                    Movie movie = mDb.movieDoa().getMovie(mMovie.getId());
+                    return movie!=null?true:false;
+                }
+            }
+
+            @Override
+            protected void onPostExecute(Boolean aBoolean) {
+
+                mFavoriteBtn.setVisibility(View.VISIBLE);
+                mFavorite = aBoolean;
+                // If it is a favorite movie we change text of button to "Unmark this favorite"
+                if(mFavorite){
+                    mFavoriteBtn.setText(R.string.unmark_this_favorite);
+                }
+
+                setUpViewModel(mMovie.getId());
+            }
+        }.execute();
+
+    }
+
     private void setUpViewModel(int id) {
         final DetailActivityViewModel viewModel = ViewModelProviders.of(this).get(DetailActivityViewModel.class);
-        viewModel.setFavorite(ismFavorite());
+        viewModel.setFavorite(mFavorite);
         // Set up the trailers
         viewModel.getTrailers(id).observe(this, new Observer<List<Video>>() {
             @Override
@@ -144,10 +184,25 @@ public class DetailActivity extends AppCompatActivity implements TrailersAdapter
     }
 
     public void onFavoriteButtonClicked(View view) {
-        String uri = saveImageInFile(mMovie.getOriginalTitle());
-        Movie movie = createANewMovieObject(uri);
+        if(mFavorite){
+            removeFromDatabase();
+        }else {
+            String uri = saveImageInFile(mMovie.getOriginalTitle());
+            Movie movie = createANewMovieObject(uri);
+            saveInDatabase(movie);
+        }
+    }
 
-        saveInDatabase(movie);
+    private void removeFromDatabase() {
+        AppExecutors.getsInstance().diskIO().execute(new Runnable() {
+            @Override
+            public void run() {
+                mDb.movieDoa().deleteMovie(mMovie);
+                mDb.trailerDoa().deleteTrailersForMovie(mMovie.getId());
+                mDb.reviewDao().deleteReviewsForMovie(mMovie.getId());
+            }
+        });
+
     }
 
     private void saveInDatabase(final Movie movie) {
@@ -229,8 +284,4 @@ public class DetailActivity extends AppCompatActivity implements TrailersAdapter
         return String.valueOf(Uri.fromFile(file));
     }
 
-    private boolean ismFavorite() {
-        mFavorite = getIntent().getBooleanExtra(EXTRA_FAVORITE, false);
-        return mFavorite;
-    }
 }

@@ -16,4 +16,7 @@ public interface TrailerDao {
     @Query("Select * from TrailerVideoWithId where id=:id")
     List<TrailerVideoWithId> getTrailerVideosWithId(int id);
 
+    @Query("Delete from TrailerVideoWithId where id=:id")
+    void deleteTrailersForMovie(int id);
+
 }
