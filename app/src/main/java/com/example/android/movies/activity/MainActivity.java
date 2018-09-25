@@ -175,8 +175,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             mErrorTv.setVisibility(View.VISIBLE);
             mErrorTv.setText(getString(R.string.error_message));
         }
-
-
+        
     }
 
 

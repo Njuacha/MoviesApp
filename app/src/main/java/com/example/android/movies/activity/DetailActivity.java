@@ -17,8 +17,10 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.RatingBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.android.movies.AppExecutors;
 import com.example.android.movies.Database.AppDatabase;
@@ -64,6 +66,8 @@ public class DetailActivity extends AppCompatActivity implements TrailersAdapter
     Button mFavoriteBtn;
     @BindView(R.id.rating_bar)
     RatingBar mRatingBar;
+    @BindView(R.id.pb)
+    ProgressBar mProgressBar;
 
     private TrailersAdapter mTrailersAdapter;
     private ReviewsAdapter mReviewsAdapter;
@@ -151,6 +155,7 @@ public class DetailActivity extends AppCompatActivity implements TrailersAdapter
 
                 setUpViewModel(mMovie.getId());
             }
+
         }.execute();
 
     }
@@ -185,37 +190,55 @@ public class DetailActivity extends AppCompatActivity implements TrailersAdapter
     }
 
     public void onFavoriteButtonClicked(View view) {
-        if(mFavorite){
-            removeFromDatabase();
-        }else {
-            String uri = saveImageInFile(mMovie.getOriginalTitle());
-            Movie movie = createANewMovieObject(uri);
-            saveInDatabase(movie);
-        }
+        new AsyncTask<Void,Void,Void>(){
+            @Override
+            protected void onPreExecute() {
+                mProgressBar.setVisibility(View.VISIBLE);
+                mFavoriteBtn.setClickable(false);
+                super.onPreExecute();
+            }
+
+            @Override
+            protected Void doInBackground(Void... voids) {
+                if(mFavorite){
+                    removeFromDatabase();
+                }else {
+                    String uri = saveImageInFile(mMovie.getOriginalTitle());
+                    Movie movie = createANewMovieObject(uri);
+                    saveInDatabase(movie);
+                }
+                return null;
+            }
+
+            @Override
+            protected void onPostExecute(Void aVoid) {
+
+                if(mFavorite){
+                    Toast.makeText(getBaseContext(),"Removed From Favorites",Toast.LENGTH_LONG).show();
+                    mFavoriteBtn.setText(getString(R.string.mark_as_favorite));
+                }else{
+                    Toast.makeText(getBaseContext(),"Added to Favorites",Toast.LENGTH_LONG).show();
+                    mFavoriteBtn.setText(getString(R.string.unmark_this_favorite));
+                }
+                // Toggle the favorite state.True to false or vise versa
+                mFavorite = !mFavorite;
+                mFavoriteBtn.setClickable(true);
+                mProgressBar.setVisibility(View.INVISIBLE);
+            }
+        }.execute();
+
     }
 
     private void removeFromDatabase() {
-        AppExecutors.getsInstance().diskIO().execute(new Runnable() {
-            @Override
-            public void run() {
-                mDb.movieDoa().deleteMovie(mMovie);
-                mDb.trailerDoa().deleteTrailersForMovie(mMovie.getId());
-                mDb.reviewDao().deleteReviewsForMovie(mMovie.getId());
-            }
-        });
-
+        mDb.movieDoa().deleteMovie(mMovie);
+        mDb.trailerDoa().deleteTrailersForMovie(mMovie.getId());
+        mDb.reviewDao().deleteReviewsForMovie(mMovie.getId());
     }
 
     private void saveInDatabase(final Movie movie) {
-        AppExecutors.getsInstance().diskIO().execute(new Runnable() {
-            @Override
-            public void run() {
-                insertMovieInDatabase(movie);
-                insertTrailersInDatabase(movie.getId());
-                insertReviewsInDatabase(movie.getId());
-            }
-        });
-
+        insertMovieInDatabase(movie);
+        insertTrailersInDatabase(movie.getId());
+        insertReviewsInDatabase(movie.getId());
     }
 
     private void insertReviewsInDatabase(int id) {
