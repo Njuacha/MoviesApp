@@ -38,7 +38,9 @@ import com.squareup.picasso.Picasso;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.URI;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import butterknife.BindView;
@@ -202,6 +204,7 @@ public class DetailActivity extends AppCompatActivity implements TrailersAdapter
             protected Void doInBackground(Void... voids) {
                 if(mFavorite){
                     removeFromDatabase();
+                    removePicFrmInternalMermory();
                 }else {
                     String uri = saveImageInFile(mMovie.getOriginalTitle());
                     Movie movie = createANewMovieObject(uri);
@@ -227,6 +230,11 @@ public class DetailActivity extends AppCompatActivity implements TrailersAdapter
             }
         }.execute();
 
+    }
+
+    private void removePicFrmInternalMermory() {
+        File file = new File(Uri.parse(mMovie.getPosterPath()).getPath());
+        file.delete();
     }
 
     private void removeFromDatabase() {
@@ -288,7 +296,14 @@ public class DetailActivity extends AppCompatActivity implements TrailersAdapter
 
     private String saveImageInFile(String originalTitle) {
         // Get Bitmap from image
-        Bitmap bitmap = ((BitmapDrawable) mImageView.getDrawable()).getBitmap();
+        BitmapDrawable drawable = (BitmapDrawable) mImageView.getDrawable();
+
+        if(drawable == null){
+            return null;
+        }
+
+        Bitmap bitmap = drawable.getBitmap();
+
         // Declare File out put stream to be used to write to a file
         FileOutputStream fileOutputStream = null;
         File directory = getApplicationContext().getFilesDir();
@@ -307,5 +322,9 @@ public class DetailActivity extends AppCompatActivity implements TrailersAdapter
 
         return String.valueOf(Uri.fromFile(file));
     }
+
+//    Todo: Find a way to resolve problem of detail view being too crowded. perhaps i can create a new layout
+    // For the Reviews or I show just one review and Trailer while the other trailers or reviews are seen on expand
+//    Todo: Find a way to build a repository so as to separate concerns
 
 }
