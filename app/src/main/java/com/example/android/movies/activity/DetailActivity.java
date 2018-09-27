@@ -22,7 +22,6 @@ import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.android.movies.AppExecutors;
 import com.example.android.movies.Database.AppDatabase;
 import com.example.android.movies.R;
 import com.example.android.movies.adapter.ReviewsAdapter;
@@ -38,9 +37,7 @@ import com.squareup.picasso.Picasso;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.net.URI;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import butterknife.BindView;
@@ -70,6 +67,11 @@ public class DetailActivity extends AppCompatActivity implements TrailersAdapter
     RatingBar mRatingBar;
     @BindView(R.id.pb)
     ProgressBar mProgressBar;
+    @BindView(R.id.no_trailer)
+    TextView trailerTv;
+    @BindView(R.id.no_review)
+    TextView reviewTv;
+
 
     private TrailersAdapter mTrailersAdapter;
     private ReviewsAdapter mReviewsAdapter;
@@ -114,15 +116,15 @@ public class DetailActivity extends AppCompatActivity implements TrailersAdapter
             // Set dividers for recycler views
             mRvTrailers.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
             mRvReviews.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
-
             // Set adapters to respective rv's
+
             mRvTrailers.setAdapter(mTrailersAdapter);
             mRvReviews.setAdapter(mReviewsAdapter);
-
             setUpData();
 
         }
     }
+
 
     private void  setUpData() {
 
@@ -141,7 +143,7 @@ public class DetailActivity extends AppCompatActivity implements TrailersAdapter
                     // if the sort order is not favorite movies we have to check if the movie is a favorite
                     // By verifying it there is a movie like this in the favorite list in database
                     Movie movie = mDb.movieDoa().getMovie(mMovie.getId());
-                    return movie!=null?true:false;
+                    return movie != null;
                 }
             }
 
@@ -169,17 +171,34 @@ public class DetailActivity extends AppCompatActivity implements TrailersAdapter
         viewModel.getTrailers(id).observe(this, new Observer<List<Video>>() {
             @Override
             public void onChanged(@Nullable List<Video> videos) {
-                mTrailersAdapter.setVideos(videos);
+
+                if (videos.size() == 0){
+                    trailerTv.setVisibility(View.VISIBLE);
+                }else{
+                    trailerTv.setVisibility(View.INVISIBLE);
+                    mTrailersAdapter.setVideos(videos);
+                }
+
             }
+
         });
+
 
         // Set up the reviews
         viewModel.getReviews(id).observe(this, new Observer<List<Review>>() {
             @Override
             public void onChanged(@Nullable List<Review> reviews) {
-                mReviewsAdapter.setReviews(reviews);
+
+                if(reviews.size() == 0){
+                    reviewTv.setVisibility(View.VISIBLE);
+                }else{
+                    reviewTv.setVisibility(View.INVISIBLE);
+                    mReviewsAdapter.setReviews(reviews);
+                }
+
             }
         });
+
     }
 
     @Override
@@ -305,7 +324,7 @@ public class DetailActivity extends AppCompatActivity implements TrailersAdapter
         Bitmap bitmap = drawable.getBitmap();
 
         // Declare File out put stream to be used to write to a file
-        FileOutputStream fileOutputStream = null;
+        FileOutputStream fileOutputStream;
         File directory = getApplicationContext().getFilesDir();
         File file = new File(directory, originalTitle);
 
@@ -323,8 +342,5 @@ public class DetailActivity extends AppCompatActivity implements TrailersAdapter
         return String.valueOf(Uri.fromFile(file));
     }
 
-//    Todo: Find a way to resolve problem of detail view being too crowded. perhaps i can create a new layout
-    // For the Reviews or I show just one review and Trailer while the other trailers or reviews are seen on expand
-//    Todo: Find a way to build a repository so as to separate concerns
 
 }

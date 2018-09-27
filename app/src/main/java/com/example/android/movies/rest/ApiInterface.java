@@ -7,7 +7,6 @@ import com.example.android.movies.model.VideoResponse;
 import retrofit2.Call;
 import retrofit2.http.GET;
 import retrofit2.http.Path;
-import retrofit2.http.Query;
 
 /**
  * Created by hubert on 8/27/18.

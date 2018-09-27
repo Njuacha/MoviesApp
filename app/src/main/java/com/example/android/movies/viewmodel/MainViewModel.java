@@ -6,7 +6,6 @@ import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.content.Context;
 import android.support.annotation.NonNull;
-import android.text.TextUtils;
 
 import com.example.android.movies.Database.AppDatabase;
 import com.example.android.movies.R;
@@ -26,8 +25,7 @@ public class MainViewModel extends AndroidViewModel {
     private static final String DEFAULT_VALUE = "-1";
     private MutableLiveData<List<Movie>> movies ;
     private LiveData<List<Movie>> favoriteMovies;
-    private Context mContext;
-    private String mPrefChoice = DEFAULT_VALUE;
+    private final Context mContext;
     private boolean favorite = false;
 
     public MainViewModel(@NonNull Application application) {
@@ -49,11 +47,12 @@ public class MainViewModel extends AndroidViewModel {
             /*
           This condition is satisfied when onCreate is first called in main Or when our preference changes
         */
+            String mPrefChoice = DEFAULT_VALUE;
             if(movies == null || (prefChoice != mPrefChoice)) {
 
                 // If it the case of onCreate being called for the first time then movies must be instantiated
                 if( movies == null){
-                    movies = new MutableLiveData<List<Movie>>();
+                    movies = new MutableLiveData<>();
                 }
 
         /*

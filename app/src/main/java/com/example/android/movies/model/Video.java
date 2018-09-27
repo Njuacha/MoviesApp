@@ -4,11 +4,11 @@ import com.google.gson.annotations.SerializedName;
 
 public class Video {
     @SerializedName("name")
-    private String name;
+    private final String name;
     @SerializedName("key")
-    private String key;
+    private final String key;
     @SerializedName("type")
-    private String type;
+    private final String type;
 
     public Video(String name, String key, String type) {
         this.name = name;

@@ -4,10 +4,8 @@ import android.app.Application;
 import android.arch.lifecycle.AndroidViewModel;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
-import android.arch.lifecycle.ViewModel;
 import android.content.Context;
 import android.support.annotation.NonNull;
-import android.util.Log;
 
 import com.example.android.movies.AppExecutors;
 import com.example.android.movies.Database.AppDatabase;
@@ -32,14 +30,14 @@ public class DetailActivityViewModel extends AndroidViewModel{
     private MutableLiveData<List<Video>> trailers ;
     private MutableLiveData<List<Review>> reviews ;
     private boolean favorite = false;
-    private Context context;
+    private final Context context;
 
     public DetailActivityViewModel(@NonNull Application application) {
         super(application);
         context = this.getApplication();
     }
 
-    public LiveData<List<Video>> loadTrailers (final int id){
+    private void loadTrailers(final int id){
         if(favorite){
             AppExecutors.getsInstance().diskIO().execute(new Runnable() {
                 @Override
@@ -85,10 +83,9 @@ public class DetailActivityViewModel extends AndroidViewModel{
             });
         }
 
-        return trailers;
     }
 
-    public LiveData<List<Review>> loadReviews(final int id){
+    private void loadReviews(final int id){
        if(favorite){
 
            AppExecutors.getsInstance().diskIO().execute(new Runnable() {
@@ -126,12 +123,11 @@ public class DetailActivityViewModel extends AndroidViewModel{
        }
 
 
-        return reviews;
     }
 
     public LiveData<List<Video>> getTrailers(int id) {
         if(trailers == null) {
-            trailers = new MutableLiveData<List<Video>>();
+            trailers = new MutableLiveData<>();
             loadTrailers(id);
         }
         return trailers;
@@ -139,7 +135,7 @@ public class DetailActivityViewModel extends AndroidViewModel{
 
     public LiveData<List<Review>> getReviews(int id) {
         if(reviews == null){
-            reviews = new MutableLiveData<List<Review>>();
+            reviews = new MutableLiveData<>();
             loadReviews(id);
         }
         return reviews;

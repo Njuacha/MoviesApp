@@ -16,7 +16,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -41,12 +40,14 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     private MainViewModel mViewModel;
 
 
-    @BindView(R.id.recycler_view) RecyclerView mRv;
-    @BindView(R.id.pb)  ProgressBar mLoadingIndicator;
-    @BindView(R.id.error_tv) TextView mErrorTv;
+    @BindView(R.id.recycler_view)
+    RecyclerView mRv;
+    @BindView(R.id.pb)
+    ProgressBar mLoadingIndicator;
+    @BindView(R.id.error_tv)
+    TextView mErrorTv;
 
     private MainActivityAdapter mAdapter;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,14 +88,26 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         return true;
     }
 
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
+
         if (id == R.id.action_settings) {
+
             Intent startSettingsActivity = new Intent(this, SettingsActivity.class);
             startActivity(startSettingsActivity);
             return true;
+
         }
+        if (id == R.id.action_reload){
+
+            Bundle bundle = new Bundle();
+            bundle.putString(SORT_ORDER,getPreferredSortOder());
+            getSupportLoaderManager().restartLoader(MOVIES_LOADER_ID,bundle,this);
+            return true;
+        }
+
         return super.onOptionsItemSelected(item);
     }
 
@@ -131,6 +144,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                 .unregisterOnSharedPreferenceChangeListener(this);
     }
 
+    @NonNull
     @Override
     public Loader<LiveData<List<Movie>>> onCreateLoader(int id, final Bundle args) {
 
@@ -180,7 +194,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
 
     @Override
-    public void onLoaderReset(Loader<LiveData<List<Movie>>> loader) {
+    public void onLoaderReset(@NonNull Loader<LiveData<List<Movie>>> loader) {
 
     }
 }

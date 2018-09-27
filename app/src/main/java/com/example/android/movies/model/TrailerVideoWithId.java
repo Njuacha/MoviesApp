@@ -3,7 +3,6 @@ package com.example.android.movies.model;
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.ForeignKey;
 import android.arch.persistence.room.Ignore;
-import android.arch.persistence.room.PrimaryKey;
 import android.support.annotation.NonNull;
 
 import static android.arch.persistence.room.ForeignKey.CASCADE;
@@ -15,6 +14,7 @@ public class TrailerVideoWithId {
 
     private int id;
     private String name;
+    @SuppressWarnings("NullableProblems")
     @NonNull
     private String key;
 
@@ -26,7 +26,7 @@ public class TrailerVideoWithId {
         this.name = name;
     }
 
-    public void setKey(String key) {
+    public void setKey(@NonNull String key) {
         this.key = key;
     }
 
@@ -41,6 +41,7 @@ public class TrailerVideoWithId {
         return name;
     }
 
+    @NonNull
     public String getKey() {
         return key;
     }

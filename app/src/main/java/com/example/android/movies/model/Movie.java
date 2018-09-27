@@ -1,6 +1,5 @@
 package com.example.android.movies.model;
 
-import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.PrimaryKey;
 import android.os.Parcel;
@@ -26,7 +25,7 @@ public class Movie implements Parcelable{
     @SerializedName("overview")
     private final String aPlotSynopsis;
     @SerializedName("vote_average")
-    private float userRating;
+    private final float userRating;
     @SerializedName("release_date")
     private final String releaseDate;
 

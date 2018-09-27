@@ -14,7 +14,7 @@ import com.example.android.movies.model.Review;
 import java.util.List;
 
 public class ReviewsAdapter extends RecyclerView.Adapter<ReviewsAdapter.ReviewViewHolder> {
-    private Context context;
+    private final Context context;
     private List<Review> reviews;
 
     public ReviewsAdapter(Context context){
@@ -55,10 +55,10 @@ public class ReviewsAdapter extends RecyclerView.Adapter<ReviewsAdapter.ReviewVi
 
     public class ReviewViewHolder extends RecyclerView.ViewHolder{
 
-        TextView author_tv;
-        TextView content_tv;
+        final TextView author_tv;
+        final TextView content_tv;
 
-        public ReviewViewHolder(View itemView) {
+        ReviewViewHolder(View itemView) {
             super(itemView);
 
             author_tv = itemView.findViewById(R.id.author_tv);
