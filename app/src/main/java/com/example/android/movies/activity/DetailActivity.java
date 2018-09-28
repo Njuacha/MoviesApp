@@ -24,6 +24,7 @@ import android.widget.Toast;
 
 import com.example.android.movies.Database.AppDatabase;
 import com.example.android.movies.R;
+import com.example.android.movies.Repository;
 import com.example.android.movies.adapter.ReviewsAdapter;
 import com.example.android.movies.adapter.TrailersAdapter;
 import com.example.android.movies.model.Movie;
@@ -222,10 +223,10 @@ public class DetailActivity extends AppCompatActivity implements TrailersAdapter
             @Override
             protected Void doInBackground(Void... voids) {
                 if(mFavorite){
-                    removeFromDatabase();
-                    removePicFrmInternalMermory();
+                    Repository.removeFromDatabase(getApplicationContext(),mMovie);
+                    Repository.removePicFrmInternalMermory(mMovie.getPosterPath());
                 }else {
-                    String uri = saveImageInFile(mMovie.getOriginalTitle());
+                    String uri = Repository.saveImageInFile(getApplicationContext(),mMovie.getOriginalTitle(),mImageView);
                     Movie movie = createANewMovieObject(uri);
                     saveInDatabase(movie);
                 }
@@ -249,17 +250,6 @@ public class DetailActivity extends AppCompatActivity implements TrailersAdapter
             }
         }.execute();
 
-    }
-
-    private void removePicFrmInternalMermory() {
-        File file = new File(Uri.parse(mMovie.getPosterPath()).getPath());
-        file.delete();
-    }
-
-    private void removeFromDatabase() {
-        mDb.movieDoa().deleteMovie(mMovie);
-        mDb.trailerDoa().deleteTrailersForMovie(mMovie.getId());
-        mDb.reviewDao().deleteReviewsForMovie(mMovie.getId());
     }
 
     private void saveInDatabase(final Movie movie) {
@@ -294,7 +284,7 @@ public class DetailActivity extends AppCompatActivity implements TrailersAdapter
 
     private List<TrailerVideoWithId> constructListOfTrailerVideoWithId(int id) {
         List<TrailerVideoWithId> trailerVideosWithId = new ArrayList<>();
-
+        
         for (Video video : mTrailersAdapter.getVideos()) {
             trailerVideosWithId.add(new TrailerVideoWithId(id, video));
         }
@@ -311,35 +301,6 @@ public class DetailActivity extends AppCompatActivity implements TrailersAdapter
         Movie movie = mMovie;
         movie.setPosterPath(uri);
         return movie;
-    }
-
-    private String saveImageInFile(String originalTitle) {
-        // Get Bitmap from image
-        BitmapDrawable drawable = (BitmapDrawable) mImageView.getDrawable();
-
-        if(drawable == null){
-            return null;
-        }
-
-        Bitmap bitmap = drawable.getBitmap();
-
-        // Declare File out put stream to be used to write to a file
-        FileOutputStream fileOutputStream;
-        File directory = getApplicationContext().getFilesDir();
-        File file = new File(directory, originalTitle);
-
-        try {
-
-            fileOutputStream = openFileOutput(file.getName(), MODE_PRIVATE);
-            bitmap.compress(Bitmap.CompressFormat.PNG, 100, fileOutputStream);
-            fileOutputStream.flush();
-            fileOutputStream.close();
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        return String.valueOf(Uri.fromFile(file));
     }
 
 
