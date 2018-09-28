@@ -9,10 +9,13 @@ import android.widget.Toast;
 
 import com.example.android.movies.Database.AppDatabase;
 import com.example.android.movies.model.Movie;
+import com.example.android.movies.model.ReviewWithId;
+import com.example.android.movies.model.TrailerVideoWithId;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.List;
 
 import static android.content.Context.MODE_PRIVATE;
 
@@ -51,7 +54,7 @@ public class Repository {
         return String.valueOf(Uri.fromFile(file));
     }
 
-    public static void removePicFrmInternalMermory(String posterPath) {
+    public static void removePicFrmInternalMemory(String posterPath) {
         if(posterPath != null){
             File file = new File(Uri.parse(posterPath).getPath());
             file.delete();
@@ -64,5 +67,21 @@ public class Repository {
         db.movieDoa().deleteMovie(movie);
         db.trailerDoa().deleteTrailersForMovie(movie.getId());
         db.reviewDao().deleteReviewsForMovie(movie.getId());
+    }
+
+    public static void insertMovieInDatabase(Context context,Movie movie) {
+        AppDatabase.getDatabaseInstance(context).movieDoa().insertMovie(movie);
+    }
+
+    public static void insertReviewsInDatabase(Context context, List<ReviewWithId> reviewsWithVideoId) {
+        if (reviewsWithVideoId.size() != 0) {
+            AppDatabase.getDatabaseInstance(context).reviewDao().insertReviews(reviewsWithVideoId);
+        }
+    }
+
+    public static void insertTrailersInDatabase(Context context, List<TrailerVideoWithId> trailerVideosWithId) {
+        if (trailerVideosWithId.size() != 0) {
+            AppDatabase.getDatabaseInstance(context).trailerDoa().insertTrailers(trailerVideosWithId);
+        }
     }
 }

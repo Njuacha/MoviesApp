@@ -127,7 +127,7 @@ public class DetailActivityViewModel extends AndroidViewModel{
 
     public LiveData<List<Video>> getTrailers(int id) {
         if(trailers == null) {
-            trailers = new MutableLiveData<>();
+            trailers = new MutableLiveData<List<Video>>();
             loadTrailers(id);
         }
         return trailers;
@@ -135,7 +135,7 @@ public class DetailActivityViewModel extends AndroidViewModel{
 
     public LiveData<List<Review>> getReviews(int id) {
         if(reviews == null){
-            reviews = new MutableLiveData<>();
+            reviews = new MutableLiveData<List<Review>>();
             loadReviews(id);
         }
         return reviews;

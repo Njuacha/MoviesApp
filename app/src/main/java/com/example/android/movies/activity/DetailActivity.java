@@ -204,7 +204,7 @@ public class DetailActivity extends AppCompatActivity implements TrailersAdapter
 
     @Override
     public void onTrailerClicked(String videoKey) {
-        String baseUrl = "https://www.youtube.com/watch?v=";
+        String baseUrl = getString(R.string.youtube_base_url);
         Uri youTubeUri = Uri.parse(baseUrl + videoKey);
 
         Intent intent = new Intent(Intent.ACTION_VIEW, youTubeUri);
@@ -224,7 +224,7 @@ public class DetailActivity extends AppCompatActivity implements TrailersAdapter
             protected Void doInBackground(Void... voids) {
                 if(mFavorite){
                     Repository.removeFromDatabase(getApplicationContext(),mMovie);
-                    Repository.removePicFrmInternalMermory(mMovie.getPosterPath());
+                    Repository.removePicFrmInternalMemory(mMovie.getPosterPath());
                 }else {
                     String uri = Repository.saveImageInFile(getApplicationContext(),mMovie.getOriginalTitle(),mImageView);
                     Movie movie = createANewMovieObject(uri);
@@ -253,24 +253,11 @@ public class DetailActivity extends AppCompatActivity implements TrailersAdapter
     }
 
     private void saveInDatabase(final Movie movie) {
-        insertMovieInDatabase(movie);
-        insertTrailersInDatabase(movie.getId());
-        insertReviewsInDatabase(movie.getId());
+        Repository.insertMovieInDatabase(getApplicationContext(), movie);
+        Repository.insertTrailersInDatabase(getApplicationContext(),constructListOfTrailerVideoWithId(mMovie.getId()));
+        Repository.insertReviewsInDatabase(getApplicationContext(),constructListOfReviewWithVideoId(mMovie.getId()));
     }
 
-    private void insertReviewsInDatabase(int id) {
-        List<ReviewWithId> reviewsWithVideoId = constructListOfReviewWithVideoId(id);
-        if (reviewsWithVideoId.size() != 0) {
-            mDb.reviewDao().insertReviews(reviewsWithVideoId);
-        }
-    }
-
-    private void insertTrailersInDatabase(int id) {
-        List<TrailerVideoWithId> trailerVideosWithId = constructListOfTrailerVideoWithId(id);
-        if (trailerVideosWithId.size() != 0) {
-            mDb.trailerDoa().insertTrailers(trailerVideosWithId);
-        }
-    }
 
     private List<ReviewWithId> constructListOfReviewWithVideoId(int id) {
         List<ReviewWithId> reviewsWithId = new ArrayList<>();
@@ -290,10 +277,6 @@ public class DetailActivity extends AppCompatActivity implements TrailersAdapter
         }
 
         return trailerVideosWithId;
-    }
-
-    private void insertMovieInDatabase(Movie movie) {
-        mDb.movieDoa().insertMovie(movie);
     }
 
     private Movie createANewMovieObject(String uri) {

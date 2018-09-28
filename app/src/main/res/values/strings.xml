@@ -22,4 +22,5 @@
     <string name="play_trailer">Play Trailer</string>
     <string name="reload">Reload</string>
     <string name="failed_to_save_image">Could not save image. You might out of internal mermory</string>
+    <string name="youtube_base_url">https://www.youtube.com/watch?v=</string>
 </resources>
