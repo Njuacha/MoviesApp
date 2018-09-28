@@ -173,11 +173,12 @@ public class DetailActivity extends AppCompatActivity implements TrailersAdapter
             @Override
             public void onChanged(@Nullable List<Video> videos) {
 
+                mTrailersAdapter.setVideos(videos);
+
                 if (videos.size() == 0){
                     trailerTv.setVisibility(View.VISIBLE);
                 }else{
                     trailerTv.setVisibility(View.INVISIBLE);
-                    mTrailersAdapter.setVideos(videos);
                 }
 
             }
@@ -190,11 +191,12 @@ public class DetailActivity extends AppCompatActivity implements TrailersAdapter
             @Override
             public void onChanged(@Nullable List<Review> reviews) {
 
+                mReviewsAdapter.setReviews(reviews);
+
                 if(reviews.size() == 0){
                     reviewTv.setVisibility(View.VISIBLE);
                 }else{
                     reviewTv.setVisibility(View.INVISIBLE);
-                    mReviewsAdapter.setReviews(reviews);
                 }
 
             }
