@@ -9,6 +9,7 @@ import android.support.annotation.NonNull;
 
 import com.example.android.movies.Database.AppDatabase;
 import com.example.android.movies.R;
+import com.example.android.movies.Repository;
 import com.example.android.movies.model.Movie;
 import com.example.android.movies.model.MovieResponse;
 import com.example.android.movies.rest.ApiClient;
@@ -22,7 +23,7 @@ import retrofit2.Response;
 
 public class MainViewModel extends AndroidViewModel {
 
-    private static final String DEFAULT_VALUE = "-1";
+
     private MutableLiveData<List<Movie>> movies ;
     private LiveData<List<Movie>> favoriteMovies;
     private final Context mContext;
@@ -36,55 +37,17 @@ public class MainViewModel extends AndroidViewModel {
     public LiveData<List<Movie>> getMovies(String prefChoice){
 
         if(prefChoice.equals(mContext.getString(R.string.favorite_value))){
-            if(favoriteMovies == null) {
-                favoriteMovies = AppDatabase.getDatabaseInstance(mContext).movieDoa().loadFavorites();
-            }
+
             // Set variable favorite to true to indicate that this a favorite movies
             favorite = true;
 
-            return favoriteMovies;
+            return Repository.getFavoriteMovies(mContext,favoriteMovies);
         }else{
-            /*
-          This condition is satisfied when onCreate is first called in main Or when our preference changes
-        */
-            String mPrefChoice = DEFAULT_VALUE;
-            if(movies == null || (prefChoice != mPrefChoice)) {
 
-                // If it the case of onCreate being called for the first time then movies must be instantiated
-                if( movies == null){
-                    movies = new MutableLiveData<>();
-                }
+            // Set the variable favorite to false to indicate that these are not favorite movies
+            favorite = false;
 
-        /*
-            Create a connection to the API i.e create client object. And map the client object to the interface which is service object
-        */
-                ApiInterface apiService = ApiClient.getClient().create(ApiInterface.class);
-                // Perform an HTTP request using the service object just created depending on the sort choice of user
-                Call<MovieResponse> call;
-                // If there is no pref available for whatever mysterious reason, then return null
-                if( prefChoice.equals(mContext.getString(R.string.top_rated_value))){
-                    call = apiService.getTopRatedMovies();
-                }else if( prefChoice.equals(mContext.getString(R.string.most_popular_value))){
-                    call = apiService.getMostPopularMovies();
-                }else {
-                    return null;
-                }
-
-                try {
-                    Response<MovieResponse> response = call.execute();
-                    movies.postValue(response.body().getResults());
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                // Set the variable favorite to false to indicate that these are not favorite movies
-                favorite = false;
-            /*
-             Else we are not loading for the first time
-             nor has pref choice changed so we return already cached movies
-            */
-            }
-
-            return movies;
+            return Repository.getMoviesFromApi(mContext,prefChoice,movies);
         }
 
     }

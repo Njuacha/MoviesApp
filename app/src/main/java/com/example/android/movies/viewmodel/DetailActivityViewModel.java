@@ -9,6 +9,7 @@ import android.support.annotation.NonNull;
 
 import com.example.android.movies.AppExecutors;
 import com.example.android.movies.Database.AppDatabase;
+import com.example.android.movies.Repository;
 import com.example.android.movies.model.Review;
 import com.example.android.movies.model.ReviewResponse;
 import com.example.android.movies.model.ReviewWithId;
@@ -37,98 +38,10 @@ public class DetailActivityViewModel extends AndroidViewModel{
         context = this.getApplication();
     }
 
-    private void loadTrailers(final int id){
-        if(favorite){
-            AppExecutors.getsInstance().diskIO().execute(new Runnable() {
-                @Override
-                public void run() {
-                    List<Video> trailer2 = new ArrayList<>();
-                    List<TrailerVideoWithId> trailerVideosWithId = AppDatabase.getDatabaseInstance(context).trailerDoa().getTrailerVideosWithId(id);
-
-                    for(TrailerVideoWithId trailerVideoWithId: trailerVideosWithId){
-                        trailer2.add(trailerVideoWithId.getVideo());
-                    }
-
-                    trailers.postValue(trailer2);
-
-                }
-            });
-
-        }else {
-            // Get the Trailer videos from api
-            ApiInterface apiService = ApiClient.getClient().create(ApiInterface.class);
-
-            Call<VideoResponse> call = apiService.getVideos(id);
-
-            call.enqueue(new Callback<VideoResponse>() {
-                @Override
-                public void onResponse(Call<VideoResponse> call, Response<VideoResponse> response) {
-
-                    //Iterate through the videos and remove those which are not trailers
-                    List<Video> videos = response.body().getResults();
-                    List<Video> trailerVideos = new ArrayList<>();
-                    for (Video video : videos) {
-                        if (video.getType().equals(TRAILER_TYPE)) {
-                            trailerVideos.add(video);
-                        }
-                    }
-
-                    trailers.postValue(trailerVideos);
-                }
-
-                @Override
-                public void onFailure(Call<VideoResponse> call, Throwable t) {
-
-                }
-            });
-        }
-
-    }
-
-    private void loadReviews(final int id){
-       if(favorite){
-
-           AppExecutors.getsInstance().diskIO().execute(new Runnable() {
-               @Override
-               public void run() {
-                   List<Review> reviews2 = new ArrayList<>();
-                   List<ReviewWithId> reviewsWithId = AppDatabase.getDatabaseInstance(context).reviewDao().getReviewsWithId(id);
-
-                   for(ReviewWithId reviewWithId: reviewsWithId){
-                       reviews2.add(reviewWithId.getReview());
-                   }
-
-                   reviews.postValue(reviews2);
-
-               }
-           });
-
-       }else{
-
-           ApiInterface apiService = ApiClient.getClient().create(ApiInterface.class);
-
-           Call<ReviewResponse> call = apiService.getReviews(id);
-
-           call.enqueue(new Callback<ReviewResponse>() {
-               @Override
-               public void onResponse(Call<ReviewResponse> call, Response<ReviewResponse> response) {
-                   reviews.postValue(response.body().getResults());
-               }
-
-               @Override
-               public void onFailure(Call<ReviewResponse> call, Throwable t) {
-
-               }
-           });
-       }
-
-
-    }
-
     public LiveData<List<Video>> getTrailers(int id) {
         if(trailers == null) {
             trailers = new MutableLiveData<List<Video>>();
-            loadTrailers(id);
+            Repository.loadTrailers(context,id,favorite,trailers);
         }
         return trailers;
     }
@@ -136,7 +49,7 @@ public class DetailActivityViewModel extends AndroidViewModel{
     public LiveData<List<Review>> getReviews(int id) {
         if(reviews == null){
             reviews = new MutableLiveData<List<Review>>();
-            loadReviews(id);
+            Repository.loadReviews(context,id,favorite,reviews);
         }
         return reviews;
     }

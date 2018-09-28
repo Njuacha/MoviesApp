@@ -126,7 +126,6 @@ public class DetailActivity extends AppCompatActivity implements TrailersAdapter
         }
     }
 
-
     private void  setUpData() {
 
         new AsyncTask<Void,Void, Boolean>(){
@@ -142,9 +141,8 @@ public class DetailActivity extends AppCompatActivity implements TrailersAdapter
                 }
                 else{
                     // if the sort order is not favorite movies we have to check if the movie is a favorite
-                    // By verifying it there is a movie like this in the favorite list in database
-                    Movie movie = mDb.movieDoa().getMovie(mMovie.getId());
-                    return movie != null;
+                    // By verifying if there is a movie like this in the favorite list in database
+                    return Repository.isFavorite(getApplicationContext(),mMovie.getId());
                 }
             }
 
@@ -259,7 +257,6 @@ public class DetailActivity extends AppCompatActivity implements TrailersAdapter
         Repository.insertTrailersInDatabase(getApplicationContext(),constructListOfTrailerVideoWithId(mMovie.getId()));
         Repository.insertReviewsInDatabase(getApplicationContext(),constructListOfReviewWithVideoId(mMovie.getId()));
     }
-
 
     private List<ReviewWithId> constructListOfReviewWithVideoId(int id) {
         List<ReviewWithId> reviewsWithId = new ArrayList<>();
